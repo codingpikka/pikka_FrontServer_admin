@@ -1,6 +1,6 @@
 <script setup>
 import Pikkachu from './components/pikkachu.vue'
-
+import piri from './components/piri.vue';
 
 </script>
 
@@ -9,6 +9,9 @@ import Pikkachu from './components/pikkachu.vue'
     <Pikkachu />
 
   <p>2</p>
+  <piri />
+
+  <p>3</p>
 </template>
 
 
