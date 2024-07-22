@@ -1,20 +1,11 @@
 <script setup>
-import Pikkachu from './components/pikkachu.vue'
-import piri from './components/piri.vue';
-
+import pikkaheader from "./components/pikkaheader.vue";
+import pikkasideber from "./components/pikkasidebar.vue";
 </script>
 
 <template>
-  <p>1</p>
-    <Pikkachu />
-
-  <p>2</p>
-  <piri />
-
-  <p>3</p>
+  <pikkaheader />
+  <pikkasideber />
 </template>
 
-
-<style scoped>
-
-</style>
+<style scoped></style>
