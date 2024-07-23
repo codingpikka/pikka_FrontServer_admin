@@ -1,29 +1,50 @@
 <script setup>
-import pikkaheader from "./components/pikkaheader.vue";
-import pikkasideberPost from "./components/pikkasidebarPost.vue";
-import pikkabody from "./components/pikkabody.vue";
-import pikkasidebarScreen from "./components/pikkasidebarScreen.vue";
-import pikkasidebarInfor from "./components/pikkasidebarInfor.vue";
-import NoticeManagement from "./components/NoticeManagement.vue";
+import Curation from "./components/curation.vue"; // 큐레이션
+import NoticeManagement from "./components/NoticeManagement.vue"; // 공지사항
+import Pikkaheader from "./components/pikkaheader.vue"; // 관리자 페이지 헤더
+import Pikkabody from "./components/pikkabody.vue"; // 관리자 페이지 바디 영역
+import PikkasidebarInfor from "./components/pikkasidebarInfor.vue"; // 정보 등록 사이드 바
+import PikkasidebarPost from "./components/pikkasidebarPost.vue"; // 게시물 등록 사이드 바
+import PikkasidebarScreen from "./components/pikkasidebarScreen.vue"; // 화면 관리 사이드
 </script>
 
 <template>
-  <pikkaheader />
-  <div class="pikka_contan">
-    <!-- <pikkasideberPost /> -->
-    <!-- <pikkasidebarScreen/> -->
-     
-    <pikkasidebarInfor/>
-    <NoticeManagement/>
-    <pikkabody/>
-    
-  </div>
+  <Pikkaheader @change-sidebar="setSidebar" />
+  <Pikkabody>
+    <component :is="currentSidebar" />
+  </Pikkabody>
 </template>
 
-<style scoped>
-.pikka_contan{
-  /* width: 100%; */
-  display: flex;
-}
+<style scoped></style>
 
-</style>
+<script>
+export default {
+  name: "App",
+  components: {
+    Pikkaheader,
+  },
+  data() {
+    return {
+      currentSidebar: null,
+    };
+  },
+  methods: {
+    setSidebar(sidebar) {
+      switch (sidebar) {
+        case "post":
+          this.currentSidebar = PikkasidebarPost;
+          break;
+        case "infor":
+          this.currentSidebar = PikkasidebarInfor;
+          break;
+        case "screen":
+          this.currentSidebar = PikkasidebarScreen;
+          break;
+        default:
+          this.currentSidebar = null;
+          break;
+      }
+    },
+  },
+};
+</script>
