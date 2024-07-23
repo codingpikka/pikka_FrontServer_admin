@@ -1,15 +1,12 @@
 <template>
-    <div class="pikka_body">
-      
-    </div>
-        
+  <div class="pikkabody">
+    <slot> </slot>
+  </div>
 </template>
 
-
-<style>
-/* .pikka_body{
-  
-  width: 100%;
-  padding: 20px;
+<style scoped>
+/* .pikkabody {
+  display: flex;
+  flex-direction: column;
 } */
 </style>
