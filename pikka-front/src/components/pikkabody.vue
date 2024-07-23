@@ -8,10 +8,8 @@
 
 <style>
 .pikka_body{
+  border: 1px solid black;
   width: 100%;
-  display: flex;
   padding: 20px;
-  
 }
-
 </style>
