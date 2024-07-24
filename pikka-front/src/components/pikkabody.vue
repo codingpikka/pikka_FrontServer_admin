@@ -5,8 +5,8 @@
 </template>
 
 <style scoped>
-/* .pikkabody {
+.pikkabody {
   display: flex;
-  flex-direction: column;
-} */
+  /* flex-direction: column; */
+}
 </style>

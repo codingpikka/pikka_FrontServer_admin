@@ -35,7 +35,7 @@
   </div>
 
   <!-- 본문 영역 -->
-  <div class="pikka_body">
+  <div class="pikka_body_2">
     <!-- 조건부 렌더링 -->
     <!-- selectedItem이 '공지사항'일 때 NoticeManagement 컴포넌트를 렌더링 -->
     <NoticeManagement v-if="selectedItem === '공지사항'" />
