@@ -1,5 +1,4 @@
 <template>
-  <div class="app">
     <div class="sidebar">
       <!-- 화면 관리 헤더 -->
       <div
@@ -36,10 +35,8 @@
     </div>
 
     <!-- 본문 영역 -->
-    <div class="main-content">
       <!-- 사이드 바 메뉴 컨텐츠 영역 -->
-      <aside class="sidebar_container">
-        <ul class="sidebar-menu">
+        <!-- <ul class="sidebar-menu">
           <li v-for="item in sidebarMenu" :key="item.text">
             <a
               href="#"
@@ -50,15 +47,13 @@
               {{ item.text }}
             </a>
           </li>
-        </ul>
-      </aside>
-
+        </ul> -->
+      <div class="pikka_body_2">
       <!-- 조건부 렌더링 -->
       <!-- selectedItem이 '큐레이션'일 때 Curation 컴포넌트를 렌더링 -->
       <Curation v-if="selectedItem === '큐레이션'" />
       <!-- 다른 컴포넌트도 추가할 수 있습니다. -->
-    </div>
-  </div>
+      </div>
 </template>
 <script>
 import Curation from "../components/curation.vue"; // 큐레이션 컴포넌트 import

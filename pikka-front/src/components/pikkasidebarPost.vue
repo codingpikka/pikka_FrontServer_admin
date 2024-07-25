@@ -35,20 +35,23 @@
   </div>
 
   <!-- 본문 영역 -->
-  <div class="pikka_body">
+  <div class="pikka_body_2">
     <!-- 조건부 렌더링 -->
     <!-- selectedItem이 '공지사항'일 때 NoticeManagement 컴포넌트를 렌더링 -->
     <NoticeManagement v-if="selectedItem === '공지사항'" />
     <!-- 다른 컴포넌트도 추가할 수 있습니다. -->
+    <QandA v-if="selectedItem === '문의사항'" />
   </div>
 </template>
 
 <script>
 import NoticeManagement from "../components/NoticeManagement.vue"; // 공지사항 컴포넌트 import
+import QandA from "../components/QandA.vue"; // Q&A 컴포넌트 import
 
 export default {
   components: {
     NoticeManagement,
+    QandA,
   },
   data() {
     return {
