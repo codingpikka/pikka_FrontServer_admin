@@ -1,20 +1,8 @@
-<script setup>
-import Pikkachu from './components/pikkachu.vue'
-import piri from './components/piri.vue';
-
-</script>
-
+<script setup></script>
 <template>
-  <p>1</p>
-    <Pikkachu />
-
-  <p>2</p>
-  <piri />
-
-  <p>3</p>
+  <router-view></router-view>
 </template>
 
-
 <style scoped>
-
+/* 추가 스타일이 필요하다면 여기에 작성 */
 </style>
