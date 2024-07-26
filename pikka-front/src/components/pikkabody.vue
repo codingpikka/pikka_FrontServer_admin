@@ -1,3 +1,4 @@
+
 <template>
   <div class="pikkabody">
     <slot> </slot>
@@ -10,3 +11,4 @@
   /* flex-direction: column; */
 }
 </style>
+

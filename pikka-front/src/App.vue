@@ -1,3 +1,4 @@
+
 <script setup>
 import Curation from "./components/curation.vue"; // 큐레이션
 import NoticeManagement from "./components/NoticeManagement.vue"; // 공지사항
@@ -48,3 +49,4 @@ export default {
   },
 };
 </script>
+
