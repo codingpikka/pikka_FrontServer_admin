@@ -37,13 +37,18 @@
         </svg>
       </div>
       <div class="header_post">
-        <a href="#" @click="changeSidebar('post')"> 게시물 목록 </a>
-      </div>
-      <div class="header_information">
-        <a href="#" @click="changeSidebar('screen')"> 화면 관리 </a>
+       <router-link to="/insert" >게시물 등록</router-link>
+
       </div>
       <div class="header_screen">
-        <a href="#" @click="changeSidebar('infor')"> 정보 등록 </a>
+        
+        <router-link to="/screen" >화면 관리</router-link>
+
+      </div>
+      <div class="header_information">
+
+        <router-link to="/info" >정보 등록</router-link>
+
       </div>
       <svg
         class="logout_icon"
@@ -87,14 +92,7 @@
 </template>
 
 <script>
-export default {
-  name: "Pikkaheader",
-  methods: {
-    changeSidebar(sidebar) {
-      this.$emit("change-sidebar", sidebar);
-    },
-  },
-};
+
 </script>
 
 <style scoped>
