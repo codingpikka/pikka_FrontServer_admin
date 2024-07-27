@@ -13,7 +13,7 @@ import InsertBody from '@/components/Insert/Insertbody.vue'
   
         <Header />
       
-            <InsertBody />
+        <InsertBody />
 
     
     
