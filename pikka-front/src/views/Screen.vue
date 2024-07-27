@@ -1,12 +1,15 @@
 <script setup>
 import Header from '@/components/PikkaHeader.vue';
-import Sidebar from '@/components/sidebar/PikkasidebarScreen.vue';
+
+import ScreenBody from '@/components/screen/ScreenBody.vue'
+
 
 </script>
 
 <template>
 <Header />
-<Sidebar />
+
+<ScreenBody />
 
 
 </template>
