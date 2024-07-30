@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>문의 사항</h2>
-    <button @click="addRandomQna">문의사항 등록</button>
+    <button @click="goToQandADetail">문의사항 등록</button>
     <table>
       <thead>
         <tr>
@@ -21,14 +21,16 @@
         </tr>
         <tr v-else v-for="(item, index) in qnaList" :key="item.id">
           <td>{{ index + 1 }}</td>
-          <td>{{ item.category || '-' }}</td>
+          <td>{{ item.category || "-" }}</td>
           <td>
-            <router-link :to="{ name: 'QandADetail', params: { id: item.id } }">{{ item.title || '-' }}</router-link>
+            <router-link :to="{ name: 'QandADetail', params: { id: item.id } }">{{
+              item.title || "-"
+            }}</router-link>
           </td>
-          <td>{{ item.username || '-' }}</td>
-          <td>{{ item.registeredDate || '-' }}</td>
-          <td>{{ item.answeredDate || '-' }}</td>
-          <td>{{ item.status || '-' }}</td>
+          <td>{{ item.username || "-" }}</td>
+          <td>{{ item.registeredDate || "-" }}</td>
+          <td>{{ item.answeredDate || "-" }}</td>
+          <td>{{ item.status || "-" }}</td>
           <td>
             <button @click="deleteQna(item.id)">삭제</button>
           </td>
@@ -40,31 +42,34 @@
 
 <script>
 export default {
-  name: 'QandAList',
+  name: "QandAList",
   data() {
     return {
       qnaList: [
         // 초기 데이터
-      ]
+      ],
     };
   },
   methods: {
+    goToQandADetail() {
+      this.$router.push({ name: "QandADetail", params: { id: "new" } });
+    },
     addRandomQna() {
       const newQna = {
         id: this.qnaList.length + 1,
-        category: '임의 카테고리',
-        title: '임의 제목',
-        username: '임의 사용자',
-        registeredDate: new Date().toISOString().split('T')[0],
-        answeredDate: '',
-        status: '미완료'
+        category: "임의 카테고리",
+        title: "임의 제목",
+        username: "임의 사용자",
+        registeredDate: new Date().toISOString().split("T")[0],
+        answeredDate: "",
+        status: "미완료",
       };
       this.qnaList.push(newQna);
     },
     deleteQna(id) {
-      this.qnaList = this.qnaList.filter(qna => qna.id !== id);
-    }
-  }
+      this.qnaList = this.qnaList.filter((qna) => qna.id !== id);
+    },
+  },
 };
 </script>
 
@@ -75,7 +80,8 @@ table {
   margin-top: 20px;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;

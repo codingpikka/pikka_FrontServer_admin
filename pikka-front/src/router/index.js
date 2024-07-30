@@ -5,6 +5,8 @@ const Insert = () => import("../views/Insert.vue");
 const Screen = () => import("../views/Screen.vue");
 const Inform = () => import("../views/Inform.vue");
 const Notice = () => import("../components/Insert/notice/Notice.vue");
+const QandAList = () => import("../components/Insert/QandA/QandAList.vue");
+const QandADetail = () => import("../components/Insert/QandA/QandADetail.vue");
 
 const routes = [
   {
@@ -14,8 +16,24 @@ const routes = [
   {
     path: '/insert',
     component: Insert,
-
-  
+    children: [
+      {
+        path: 'qna-list',
+        name: 'QandAList',
+        component: QandAList,
+      },
+      {
+        path: 'qna-detail/:id',
+        name: 'QandADetail',
+        component: QandADetail,
+        props: true,
+      },
+      {
+        path: 'notice',
+        name: 'Notice',
+        component: Notice,
+      },
+    ]
   },
   {
     path: '/screen',

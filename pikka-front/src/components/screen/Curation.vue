@@ -1,5 +1,3 @@
-
-
 <template>
   <div class="container">
     <div class="header">
@@ -132,7 +130,8 @@
       </div>
 
       <div class="new-register-button">
-        <button @click="toggleOverlay">등록하기</button>
+        <button @click="addNewCurationItem">등록하기</button>
+        <button @click="toggleOverlay">닫기</button>
       </div>
     </div>
   </div>
@@ -183,7 +182,7 @@
 
 <script>
 export default {
-  Curation,
+  name: "Curation",
   data() {
     return {
       isOverlayVisible: false,
@@ -297,15 +296,11 @@ export default {
     },
     addNewCurationItem() {
       if (
-        !this.newCuration.thumbnail ||
-        this.newCuration.thumbnail === window.location.href
+        !this.newCuration.name.trim() ||
+        !this.newCuration.postRegister.trim() ||
+        !this.newCuration.thumbnail.trim()
       ) {
-        alert("이미지를 등록하세요.");
-        return;
-      }
-
-      if (!this.newCuration.postRegister) {
-        alert("게시물명을 입력하세요.");
+        alert("데이터가 없습니다.");
         return;
       }
 
@@ -314,8 +309,10 @@ export default {
         title: this.newCuration.postRegister,
       });
 
+      this.newCuration.name = "";
       this.newCuration.thumbnail = "";
       this.newCuration.postRegister = "";
+      this.toggleOverlay();
     },
     searchPosts() {
       this.filteredResults = this.searchResults.filter((post) =>
@@ -553,6 +550,7 @@ body {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin: 0 10px;
 }
 
 .overlay {
