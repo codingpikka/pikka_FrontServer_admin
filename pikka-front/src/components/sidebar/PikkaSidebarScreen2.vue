@@ -1,44 +1,34 @@
 <script setup>
-import { useInsertStore } from '@/stores/rootstore';
+import { useInsertStore } from "@/stores/rootstore";
 const store = useInsertStore();
 const changeView = (view) => {
   store.setRoot(view);
-}
-
+};
 </script>
 
 <template>
   <div class="sidebar">
-    
-   <div class="header_side">
-    화면관리
-   </div>
+    <div class="header_side">화면관리</div>
 
     <ul class="sidebar_submenu">
-
-      
-      <li>   
+      <li>
         <button class="sidebar_select" @click="changeView('Curation')">큐레이션</button>
-
       </li>
       <li>
-       
         <!-- <button class="sidebar_select" @click="changeView('Query')">배너</button> -->
       </li>
     </ul>
   </div>
 </template>
 
-
 <style scoped>
-
-.header_side{
+.header_side {
   font-weight: bold;
   margin-bottom: 10px;
-
 }
 
 .sidebar {
+  float: left;
   background-color: #eeb0b0;
   width: 200px;
   padding: 10px;
@@ -67,5 +57,14 @@ const changeView = (view) => {
 .sidebar_select:hover {
   background-color: #d99898;
 }
-
+@font-face {
+  font-family: "HSSanTokki20-Regular";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/2405@1.0/HSSanTokki20-Regular.woff2")
+    format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+.sidebar_select {
+  font-family: "HSSanTokki20-Regular";
+}
 </style>

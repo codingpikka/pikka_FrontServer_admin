@@ -1,9 +1,7 @@
 <script setup>
-import Header from '@/components/PikkaHeader.vue';
-
+import Header from "@/components/pikkaheader.vue";
 </script>
 
 <template>
-<Header />
-
+  <Header />
 </template>

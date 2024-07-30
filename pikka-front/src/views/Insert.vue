@@ -1,25 +1,14 @@
 <script setup>
-import Header from '@/components/PikkaHeader.vue'
-import Sidebar from '@/components/sidebar/PikkaSidebar.vue'
+import Header from "@/components/pikkaheader.vue";
+import Sidebar from "@/components/sidebar/PikkaSidebar.vue";
 
-import InsertBody from '@/components/Insert/Insertbody.vue'
-
-
-
+import InsertBody from "@/components/Insert/Insertbody.vue";
 </script>
 
 <template>
+  <Header />
 
-  
-        <Header />
-      
-        <InsertBody />
-
-    
-    
+  <InsertBody />
 </template>
 
-<style scoped>
-
-</style>
-
+<style scoped></style>
