@@ -19,8 +19,8 @@ const setRoot = store.setRoot;
 <div v-if="root === 'Curation'">
 
     <Curation />
-    
-</div>"
+
+</div>
 
 <Curation />
 

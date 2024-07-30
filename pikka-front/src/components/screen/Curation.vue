@@ -183,6 +183,7 @@
 
 <script>
 export default {
+  Curation,
   data() {
     return {
       isOverlayVisible: false,

@@ -14,6 +14,8 @@ const routes = [
   {
     path: '/insert',
     component: Insert,
+
+  
   },
   {
     path: '/screen',
