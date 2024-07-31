@@ -280,7 +280,7 @@
   .form-group input[type="text"],
   .form-group textarea,
   .form-group input[type="date"] {
-    flex: 1;
+    flex: 2;
     max-width: 400px;  /* 최대 너비 설정 */
     padding: 10px;
     border: 1px solid #ddd;
