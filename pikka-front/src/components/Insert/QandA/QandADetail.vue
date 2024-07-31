@@ -89,6 +89,11 @@ export default {
       // 답변 제출 로직
       console.log("답변 내용:", this.answerContent);
       // 실제로는 API 호출 등을 통해 답변을 제출해야 합니다.
+      this.qna.answerContent = this.answerContent;
+      this.qna.answerer = "관리자"; // 답변자를 예시로 "관리자"로 설정
+
+      // 답변 제출 후 리스트 페이지로 이동
+      this.$router.push({ name: "QandAList" });
     },
   },
 };
