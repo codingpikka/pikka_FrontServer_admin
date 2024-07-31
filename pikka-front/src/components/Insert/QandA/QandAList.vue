@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>문의 사항</h2>
-    <button @click="goToQandADetail">문의사항 등록</button>
+    <button @click="addRandomQna">임의 문의사항 추가</button>
     <table>
       <thead>
         <tr>
@@ -23,9 +23,7 @@
           <td>{{ index + 1 }}</td>
           <td>{{ item.category || "-" }}</td>
           <td>
-            <router-link :to="{ name: 'QandADetail', params: { id: item.id } }">{{
-              item.title || "-"
-            }}</router-link>
+            <router-link :to="{ name: 'QandADetail', params: { id: item.id } }">{{ item.title || "-" }}</router-link>
           </td>
           <td>{{ item.username || "-" }}</td>
           <td>{{ item.registeredDate || "-" }}</td>
@@ -51,9 +49,6 @@ export default {
     };
   },
   methods: {
-    goToQandADetail() {
-      this.$router.push({ name: "QandADetail", params: { id: "new" } });
-    },
     addRandomQna() {
       const newQna = {
         id: this.qnaList.length + 1,
