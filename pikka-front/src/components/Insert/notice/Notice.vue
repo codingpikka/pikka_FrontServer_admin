@@ -189,46 +189,46 @@
     font-family: 'HSSanTokki20-Regular', sans-serif;
     /* background-color: #f0f0f0; */
     margin: 0;
-    padding: 0;
+    padding: 1;
   }
   
- .layout {
+  .layout {
   width: 100%;
   display: flex;
-  flex-direction: column;
-  align-items: center; /* 수평 중앙 정렬 */
-  justify-content:  unset; /* 수직 중앙 정렬 */
+  flex-direction: column; /* 세로 방향으로 변경 */
+  align-items: stretch; /* 자식 요소들을 늘려서 채우도록 설정 */
+  margin: 0; /* 마진 제거 */
+  padding: 0; /* 패딩 제거 */
 }
-
 .content {
   width: 100%;
-  max-width: 1200px; /* 최대 너비 설정 */
+  max-width: none; /* 최대 너비 제한 제거 */
   padding: 20px;
   box-sizing: border-box;
+  margin: 0; /* 마진 제거 */
 }
   
-  .main-content {
-    background-color: white;
-    /* padding: 30px; */
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-left: 10%;
-    align-items: center;
-    display: flex;
-    justify-content: center;
-  }
+.main-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 100%; /* 전체 너비 사용 */
+  box-sizing: border-box; /* 패딩을 너비에 포함 */
+  padding: 20px; /* 내부 여백 추가 */
+}
   
   table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-  }
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse; /* 테이블 셀 간 간격 제거 */
+}
+
   
-  th, td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
-  }
+  td, th {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ddd; /* 셀 경계선 추가 */
+}
   
   th {
     background-color: #f2f2f2;
@@ -280,7 +280,7 @@
   .form-group input[type="text"],
   .form-group textarea,
   .form-group input[type="date"] {
-    flex: 1;
+    flex: 2;
     max-width: 400px;  /* 최대 너비 설정 */
     padding: 10px;
     border: 1px solid #ddd;
