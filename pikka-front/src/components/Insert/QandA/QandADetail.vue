@@ -44,6 +44,8 @@
       </div>
       <button type="submit">등록하기</button>
     </form>
+
+    <button @click="goToList" class="back-button">목록으로</button>
   </div>
 </template>
 
@@ -95,6 +97,10 @@ export default {
       // 답변 제출 후 리스트 페이지로 이동
       this.$router.push({ name: "QandAList" });
     },
+    goToList() {
+      // 목록 페이지로 이동
+      this.$router.push({ name: "QandAList" });
+    }
   },
 };
 </script>
@@ -106,8 +112,7 @@ table {
   margin-top: 20px;
 }
 
-th,
-td {
+th, td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
@@ -156,5 +161,14 @@ button {
 
 button:hover {
   background-color: #369f6e;
+}
+
+.back-button {
+  margin-top: 20px;
+  background-color: #f44336;
+}
+
+.back-button:hover {
+  background-color: #d32f2f;
 }
 </style>
