@@ -14,6 +14,7 @@
     * 로그인 페이지 html 생성 및 router
 * 재석
     *공지사항 생성 및 app.vue import
+     *게시판 crud 생성  
     * Readme 작성
 
 * 은석
