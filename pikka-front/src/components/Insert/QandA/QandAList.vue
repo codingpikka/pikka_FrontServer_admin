@@ -2,7 +2,7 @@
   <div>
     <h2>문의 사항</h2>
     <button @click="addRandomQna">임의 문의사항 추가</button>
-    <table>
+    <table v-if="qnaList.length > 0">
       <thead>
         <tr>
           <th>NO</th>
@@ -16,10 +16,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-if="!qnaList || qnaList.length === 0">
-          <td colspan="8">문의 사항이 없습니다.</td>
-        </tr>
-        <tr v-else v-for="(item, index) in qnaList" :key="item.id">
+        <tr v-for="(item, index) in qnaList" :key="item.id">
           <td>{{ index + 1 }}</td>
           <td>{{ item.category || "-" }}</td>
           <td>
@@ -35,6 +32,7 @@
         </tr>
       </tbody>
     </table>
+    <p v-else>문의 사항이 없습니다.</p>
   </div>
 </template>
 
@@ -43,15 +41,20 @@ export default {
   name: "QandAList",
   data() {
     return {
-      qnaList: [
-        // 초기 데이터
-      ],
+      qnaList: [],
     };
+  },
+  created() {
+    // 컴포넌트가 생성될 때 로컬 스토리지에서 데이터를 불러옵니다.
+    const savedQnaList = localStorage.getItem('qnaList');
+    if (savedQnaList) {
+      this.qnaList = JSON.parse(savedQnaList);
+    }
   },
   methods: {
     addRandomQna() {
       const newQna = {
-        id: this.qnaList.length + 1,
+        id: Date.now(),  // 유니크한 ID 생성
         category: "임의 카테고리",
         title: "임의 제목",
         username: "임의 사용자",
@@ -60,9 +63,14 @@ export default {
         status: "미완료",
       };
       this.qnaList.push(newQna);
+      this.saveToLocalStorage();
     },
     deleteQna(id) {
       this.qnaList = this.qnaList.filter((qna) => qna.id !== id);
+      this.saveToLocalStorage();
+    },
+    saveToLocalStorage() {
+      localStorage.setItem('qnaList', JSON.stringify(this.qnaList));
     },
   },
 };
