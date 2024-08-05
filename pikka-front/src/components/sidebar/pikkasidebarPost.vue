@@ -1,11 +1,7 @@
 <template>
   <div class="sidebar">
     <!-- 게시물 등록 헤더 -->
-    <div
-      class="sidebar_add"
-      @click="toggleSubmenu"
-      :class="{ active: submenuVisible }"
-    >
+    <div class="sidebar_add" @click="toggleSubmenu" :class="{ active: submenuVisible }">
       게시물 등록
     </div>
 
