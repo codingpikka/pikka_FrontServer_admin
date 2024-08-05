@@ -29,8 +29,8 @@ onMounted(() => {
         <router-link
           to="/insert/notice"
           class="sidebar_select"
-          :class="{ active: selectedView === 'Notice' }"
-          @click="changeView('Notice')"
+          :class="{ active: selectedView === 'NoticeList' }"
+          @click="changeView('NoticeList')"
         >
           공지사항
         </router-link>
@@ -39,8 +39,8 @@ onMounted(() => {
         <router-link
           to="/insert/qna-list"
           class="sidebar_select"
-          :class="{ active: selectedView === 'Query' }"
-          @click="changeView('Query')"
+          :class="{ active: selectedView === 'QandAList' }"
+          @click="changeView('QandAList')"
         >
           문의사항
         </router-link>
