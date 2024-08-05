@@ -11,19 +11,19 @@
       <tbody>
         <tr>
           <td>카테고리</td>
-          <td>{{ qna.category }}</td>
+          <td>{{ qna.contactType }}</td>
         </tr>
         <tr>
           <td>등록자</td>
-          <td>{{ qna.username }}</td>
+          <td>{{ qna.userName }}</td>
         </tr>
         <tr>
           <td>등록일</td>
-          <td>{{ qna.registeredDate }}</td>
+          <td>{{ qna.contactPostedDate }}</td>
         </tr>
         <tr>
           <td>내용</td>
-          <td>{{ qna.content }}</td>
+          <td>{{ qna.contactContents }}</td>
         </tr>
         <tr>
           <td>답변자</td>
@@ -36,71 +36,82 @@
       </tbody>
     </table>
 
-    <h3>답변하기</h3>
-    <form @submit.prevent="submitAnswer">
-      <div>
-        <label for="answerContent">내용</label>
-        <textarea id="answerContent" v-model="answerContent" rows="5"></textarea>
-      </div>
-      <button type="submit">등록하기</button>
-    </form>
+    <div v-if="!qna.answerContent">
+      <form @submit.prevent="submitAnswer">
+        <div>
+          <label for="answerContent">내용</label>
+          <textarea id="answerContent" v-model="answerContent" rows="5"></textarea>
+        </div>
+        <button type="submit">등록하기</button>
+      </form>
+    </div>
 
     <button @click="goToList" class="back-button">목록으로</button>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+import { useRoute, useRouter } from "vue-router";
+import { ref, onMounted } from "vue";
+
 export default {
   name: "QandADetail",
-  props: ["id"],
-  data() {
-    return {
-      qna: {},
-      answerContent: "",
-    };
-  },
-  created() {
-    const qnaId = this.id;
-    if (qnaId === "new") {
-      this.qna = {
-        id: qnaId,
-        category: "",
-        username: "",
-        registeredDate: new Date().toISOString().split("T")[0],
-        content: "",
-        answerer: "",
-        answerContent: "",
-      };
-    } else {
-      // 실제로는 API 호출 등을 통해 qnaId에 해당하는 데이터를 가져와야 합니다.
-      // 예시 데이터
-      this.qna = {
-        id: qnaId,
-        category: "취업",
-        username: "창정환",
-        registeredDate: "2024-02-10",
-        content:
-          "안녕하세요 개발자 취업을 희망하는 창정환입니다. 개발자 취업정보는 어디서 찾나요?",
-        answerer: "",
-        answerContent: "",
-      };
-    }
-  },
-  methods: {
-    submitAnswer() {
-      // 답변 제출 로직
-      console.log("답변 내용:", this.answerContent);
-      // 실제로는 API 호출 등을 통해 답변을 제출해야 합니다.
-      this.qna.answerContent = this.answerContent;
-      this.qna.answerer = "관리자"; // 답변자를 예시로 "관리자"로 설정
+  setup() {
+    const route = useRoute();
+    const router = useRouter();
+    const qna = ref({});
+    const answerContent = ref("");
 
-      // 답변 제출 후 리스트 페이지로 이동
-      this.$router.push({ name: "QandAList" });
-    },
-    goToList() {
-      // 목록 페이지로 이동
-      this.$router.push({ name: "QandAList" });
-    }
+    const fetchQnaDetail = (qnaId) => {
+      axios
+        .get(`http://localhost:8080/insert/qna-list/${qnaId}`)
+        .then((response) => {
+          qna.value = response.data;
+        })
+        .catch((error) => {
+          console.error("There was an error fetching the Q&A detail!", error);
+        });
+    };
+
+    const submitAnswer = () => {
+      const qnaId = route.params.id;
+      const currentDate = new Date().toISOString().split("T")[0];
+      axios
+        .put(`http://localhost:8080/insert/qna-list/${qnaId}/answer`, {
+          answerContent: answerContent.value,
+          responsePostedDate: currentDate,
+        })
+        .then((response) => {
+          qna.value.answerContent = answerContent.value;
+          qna.value.answerer = "관리자";
+          qna.value.responsePostedDate = currentDate;
+          qna.value.responseStatus = "완료";
+          router.push({ name: "QandAList" });
+        })
+        .catch((error) => {
+          console.error("There was an error submitting the answer!", error);
+        });
+    };
+
+    const goToList = () => {
+      router.push({ name: "QandAList" });
+    };
+
+    onMounted(() => {
+      const qnaId = route.params.id;
+      if (qnaId !== "new") {
+        fetchQnaDetail(qnaId);
+      }
+    });
+
+    return {
+      qna,
+      answerContent,
+      fetchQnaDetail,
+      submitAnswer,
+      goToList,
+    };
   },
 };
 </script>
@@ -112,7 +123,8 @@ table {
   margin-top: 20px;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
