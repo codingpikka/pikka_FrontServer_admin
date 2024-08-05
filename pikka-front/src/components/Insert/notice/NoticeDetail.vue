@@ -4,20 +4,20 @@
     <form @submit.prevent="saveNotice" class="notice-form">
       <div class="form-group">
         <label for="title">제목</label>
-        <input type="text" id="title" v-model="notice.title" required>
+        <input type="text" id="title" v-model="notice.noti_title" required>
       </div>
       <div class="form-group">
         <label for="content">내용</label>
-        <textarea id="content" v-model="notice.content" rows="6" required></textarea>
+        <textarea id="content" v-model="notice.noti_contents" rows="6" required></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label for="startDate">공지 시작 날짜</label>
-          <input type="date" id="startDate" v-model="notice.date" required>
+          <input type="date" id="startDate" v-model="notice.noti_start_date" required>
         </div>
         <div class="form-group">
           <label for="endDate">공지 종료 날짜</label>
-          <input type="date" id="endDate" v-model="notice.endDate" required>
+          <input type="date" id="endDate" v-model="notice.noti_close_date" required>
         </div>
       </div>
       <div class="form-group checkbox-group">
@@ -35,18 +35,20 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'NoticeDetail',
   props: ['id'],
   data() {
     return {
       notice: {
-        title: '',
-        content: '',
-        date: '',
-        endDate: '',
+        noti_title: '',
+        noti_contents: '',
+        noti_start_date: '',
+        noti_close_date: '',
         isPublic: true,
-        author: '관리자'
+        admin_name: '관리자'
       },
       isEditing: false
     };
@@ -56,36 +58,34 @@ export default {
     if (this.isEditing) {
       this.loadNotice();
     } else {
-      this.notice.date = new Date().toISOString().split('T')[0];
+      this.notice.noti_start_date = new Date().toISOString().split('T')[0];
     }
   },
   methods: {
-    loadNotice() {
-      const notices = JSON.parse(localStorage.getItem('notices') || '[]');
-      const notice = notices.find(n => n.id === parseInt(this.id));
-      if (notice) {
-        this.notice = { ...notice };
-      } else {
+    async loadNotice() {
+      try {
+        const response = await axios.get(`/notice/${this.id}`);
+        this.notice = response.data;
+      } catch (error) {
+        console.error('공지사항을 불러오는데 실패했습니다:', error);
         this.$router.push({ name: 'NoticeList' });
       }
     },
-    saveNotice() {
-      const notices = JSON.parse(localStorage.getItem('notices') || '[]');
-      if (this.isEditing) {
-        const index = notices.findIndex(n => n.id === parseInt(this.id));
-        if (index !== -1) {
-          notices[index] = { ...this.notice };
-        }
-      } else {
-        const newNotice = {
-          ...this.notice,
-          id: Date.now(),
-          author: '관리자' // 실제 구현 시 로그인한 사용자 정보를 사용
-        };
-        notices.push(newNotice);
+    async saveNotice() {
+      try {
+        const url = this.isEditing ? `/notice/${this.id}` : '/notice';
+        const method = this.isEditing ? 'put' : 'post';
+        const response = await axios({
+          method: method,
+          url: url,
+          data: this.notice
+        });
+        console.log('서버 응답:', response.data);
+        this.$router.push({ name: 'NoticeList' });
+      } catch (error) {
+        console.error('공지사항 저장 중 오류 발생:', error.response ? error.response.data : error.message);
+        alert('공지사항 저장에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
       }
-      localStorage.setItem('notices', JSON.stringify(notices));
-      this.$router.push({ name: 'NoticeList' });
     },
     cancel() {
       this.$router.push({ name: 'NoticeList' });

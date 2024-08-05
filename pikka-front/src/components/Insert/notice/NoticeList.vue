@@ -42,39 +42,37 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
-  name: 'NoticeList',
+  name: 'NoticeView',
+  props: ['id'],
   data() {
     return {
-      notices: []
+      notice: null
     };
   },
   created() {
-    this.loadNotices();
+    this.loadNotice();
   },
   methods: {
-    loadNotices() {
-      const savedNotices = localStorage.getItem('notices');
-      if (savedNotices) {
-        this.notices = JSON.parse(savedNotices);
+    async loadNotice() {
+      try {
+        const response = await axios.get(`/api/notices/${this.id}`);
+        this.notice = response.data;
+      } catch (error) {
+        console.error('공지사항을 불러오는데 실패했습니다:', error);
+        this.$router.push({ name: 'NoticeList' });
       }
     },
-    editNotice(id) {
-      this.$router.push({ name: 'NoticeEdit', params: { id: id.toString() } });
-    },
-    deleteNotice(id) {
-      if (confirm('정말로 이 공지사항을 삭제하시겠습니까?')) {
-        this.notices = this.notices.filter(notice => notice.id !== id);
-        this.saveNotices();
-      }
-    },
-    saveNotices() {
-      localStorage.setItem('notices', JSON.stringify(this.notices));
+    formatDate(dateString) {
+      if (!dateString) return '';
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('ko-KR', options);
     }
   }
 };
 </script>
-
 <style scoped>
 .notice-container {
   padding: 20px;
