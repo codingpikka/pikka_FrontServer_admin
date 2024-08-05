@@ -35,7 +35,6 @@ const routes = [
         component: QandADetail,
         props: true,
       },
-      // 공지사항 라우트는 그대로 유지
       {
         path: 'notice',
         name: 'NoticeList',
