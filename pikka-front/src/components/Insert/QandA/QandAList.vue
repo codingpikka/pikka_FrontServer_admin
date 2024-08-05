@@ -21,9 +21,11 @@
         </tr>
         <tr v-else v-for="(item, index) in qnaList" :key="item.contactId">
           <td>{{ index + 1 }}</td>
-          <td>{{ item.category || "-" }}</td>
+          <td>{{ item.contactType || "-" }}</td>
           <td>
-            <router-link :to="{ name: 'QandADetail', params: { id: item.id } }">{{ item.title || "-" }}</router-link>
+            <router-link :to="{ name: 'QandADetail', params: { id: item.contactId } }">{{
+              item.contactContents || "-"
+            }}</router-link>
           </td>
           <td>{{ item.userName || "-" }}</td>
           <td>{{ item.contactPostedDate || "-" }}</td>
