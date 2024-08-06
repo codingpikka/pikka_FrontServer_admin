@@ -65,7 +65,7 @@ export default {
 
     const fetchQnaDetail = (qnaId) => {
       axios
-        .get(`http://localhost:8080/insert/qna-list/${qnaId}`)
+        .get(`http://localhost:8083/insert/qna-list/${qnaId}`)
         .then((response) => {
           qna.value = response.data;
         })
@@ -78,7 +78,7 @@ export default {
       const qnaId = route.params.id;
       const currentDate = new Date().toISOString().split("T")[0];
       axios
-        .put(`http://localhost:8080/insert/qna-list/${qnaId}/answer`, {
+        .put(`http://localhost:8083/insert/qna-list/${qnaId}/answer`, {
           answerContent: answerContent.value,
           responsePostedDate: currentDate,
         })
@@ -93,7 +93,6 @@ export default {
           console.error("There was an error submitting the answer!", error);
         });
     };
-
     const goToList = () => {
       router.push({ name: "QandAList" });
     };
