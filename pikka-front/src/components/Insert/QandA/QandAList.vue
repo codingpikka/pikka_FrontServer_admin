@@ -56,7 +56,7 @@ export default {
   methods: {
     fetchQnaList() {
       axios
-        .get("http://localhost:8080/insert/qna-list")
+        .get("http://localhost:8083/insert/qna-list")
         .then((response) => {
           this.qnaList = response.data;
         })
@@ -75,7 +75,7 @@ export default {
         responseStatus: "미완료",
       };
       axios
-        .post("http://localhost:8080/insert/qna-list", newQna)
+        .post("http://localhost:8083/insert/qna-list", newQna)
         .then((response) => {
           this.qnaList.push(response.data);
         })
@@ -85,7 +85,7 @@ export default {
     },
     deleteQna(contactId) {
       axios
-        .delete(`http://localhost:8080/insert/qna-list/${contactId}`)
+        .delete(`http://localhost:8083/insert/qna-list/${contactId}`)
         .then(() => {
           this.qnaList = this.qnaList.filter((qna) => qna.contactId !== contactId);
         })
