@@ -4,20 +4,20 @@
     <form @submit.prevent="saveNotice" class="notice-form">
       <div class="form-group">
         <label for="title">제목</label>
-        <input type="text" id="title" v-model="notice.noti_title" required>
+        <input type="text" id="title" v-model="notice.notiTitle" required>
       </div>
       <div class="form-group">
         <label for="content">내용</label>
-        <textarea id="content" v-model="notice.noti_contents" rows="6" required></textarea>
+        <textarea id="content" v-model="notice.notiContents" rows="6" required></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label for="startDate">공지 시작 날짜</label>
-          <input type="date" id="startDate" v-model="notice.noti_start_date" required>
+          <input type="date" id="startDate" v-model="notice.notiStartDate" required>
         </div>
         <div class="form-group">
           <label for="endDate">공지 종료 날짜</label>
-          <input type="date" id="endDate" v-model="notice.noti_close_date" required>
+          <input type="date" id="endDate" v-model="notice.notiCloseDate" required>
         </div>
       </div>
       <div class="form-group checkbox-group">
@@ -43,12 +43,14 @@ export default {
   data() {
     return {
       notice: {
-        noti_title: '',
-        noti_contents: '',
-        noti_start_date: '',
-        noti_close_date: '',
-        isPublic: true,
-        admin_name: '관리자'
+        notiId: '',               // 공지사항 ID, 초기값: 빈 문자열
+        notiAdminId: '',          // 관리자 ID, 초기값: 빈 문자열
+        notiAdminName: '',        // 관리자 이름, 초기값: 빈 문자열
+        notiTitle: '',            // 제목, 초기값: 빈 문자열
+        notiContents: '',         // 내용, 초기값: 빈 문자열
+        notiStartDate: '',        // 공지 시작 날짜, 초기값: 빈 문자열
+        notiCloseDate: '',        // 공지 종료 날짜, 초기값: 빈 문자열
+        isPublic: false           // 공개 여부, 초기값: false
       },
       isEditing: false
     };
@@ -58,40 +60,83 @@ export default {
     if (this.isEditing) {
       this.loadNotice();
     } else {
-      this.notice.noti_start_date = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split('T')[0];
+      this.notice.notiStartDate = today;
+      this.notice.notiCloseDate = today;
     }
   },
   methods: {
-    async loadNotice() {
-      try {
-        const response = await axios.get(`/notice/${this.id}`);
-        this.notice = response.data;
-      } catch (error) {
-        console.error('공지사항을 불러오는데 실패했습니다:', error);
-        this.$router.push({ name: 'NoticeList' });
-      }
-    },
     async saveNotice() {
       try {
-        const url = this.isEditing ? `/notice/${this.id}` : '/notice';
+        // Determine URL and HTTP method based on whether we are editing or creating
+        const url = this.isEditing 
+          ? `http://localhost:8083/api/notice/${this.notice.notiId}` 
+          : 'http://localhost:8083/api/notice';
         const method = this.isEditing ? 'put' : 'post';
+
+        console.log('Sending request to URL:', url);
+        console.log('Request method:', method);
+        console.log('Request data:', this.notice);
+
+        // Send request using axios
         const response = await axios({
-          method: method,
-          url: url,
+          method,
+          url : "http://localhost:8083/api/notice",
           data: this.notice
         });
-        console.log('서버 응답:', response.data);
+
+        console.log('Server response:', response.data);
+
+        // Redirect to notice list on success
         this.$router.push({ name: 'NoticeList' });
       } catch (error) {
-        console.error('공지사항 저장 중 오류 발생:', error.response ? error.response.data : error.message);
-        alert('공지사항 저장에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
+        // Handle errors in a user-friendly way
+        let errorMessage = '공지사항 저장에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.';
+        
+        if (error.response) {
+          // Error response from server
+          const status = error.response.status;
+          const message = error.response.data.message || error.message;
+
+          // Customize message based on status
+          switch (status) {
+            case 400:
+              errorMessage = '잘못된 요청입니다. 입력값을 확인해주세요.';
+              break;
+            case 401:
+              errorMessage = '인증 오류가 발생했습니다. 다시 로그인 해주세요.';
+              break;
+            case 403:
+              errorMessage = '권한이 없습니다.';
+              break;
+            case 404:
+              errorMessage = '요청한 리소스를 찾을 수 없습니다.';
+              break;
+            case 500:
+              errorMessage = '서버 오류가 발생했습니다. 나중에 다시 시도해주세요.';
+              break;
+            default:
+              errorMessage = `오류가 발생했습니다: ${message}`;
+          }
+          
+          console.error('Server error:', message);
+        } else if (error.request) {
+          // No response received from server
+          console.error('No response received:', error.request);
+        } else {
+          // Error setting up the request
+          console.error('Request setup error:', error.message);
+        }
+        
+        // Display error message to the user
+        alert(errorMessage);
       }
     },
     cancel() {
       this.$router.push({ name: 'NoticeList' });
     }
   }
-};
+}
 </script>
 
 <style scoped>
