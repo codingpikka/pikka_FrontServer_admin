@@ -24,7 +24,7 @@
           <td>{{ item.contactType || "-" }}</td>
           <td>
             <router-link :to="{ name: 'QandADetail', params: { id: item.contactId } }">{{
-              item.contactContents || "-"
+              item.contactTitle || "-"
             }}</router-link>
           </td>
           <td>{{ item.userName || "-" }}</td>
@@ -66,18 +66,18 @@ export default {
     },
     addRandomQna() {
       const newQna = {
-        userId: 1,
-        userName: "임의 사용자",
+        contactTitle: "임의 제목",
         contactType: "임의 카테고리",
-        contactContents: "임의 제목",
+        contactContents: "임의 내용",
+        userName: "임의 사용자",
         contactPostedDate: new Date().toISOString().split("T")[0],
         responsePostedDate: null,
-        responseStatus: "미완료",
+        responseStatus: "대기",
       };
       axios
-        .post("http://localhost:8083/insert/qna-list", newQna)
-        .then((response) => {
-          this.qnaList.push(response.data);
+        .post("http://localhost:8083/inquiry", newQna)
+        .then(() => {
+          this.fetchQnaList();
         })
         .catch((error) => {
           console.error("There was an error adding the Q&A!", error);
