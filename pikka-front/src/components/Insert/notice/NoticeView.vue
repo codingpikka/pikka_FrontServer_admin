@@ -1,35 +1,43 @@
 <template>
-  <div class="notice-view" v-if="notice">
-    <div class="content">
-      <h1 class="title">{{ notice.title }}</h1>
-      <div class="meta-info">
-        <div class="info-item">
-          <span class="label">작성자</span>
-          <span class="value">{{ notice.author || "관리자" }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">등록일</span>
-          <span class="value">{{ formatDate(notice.date) }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">상태</span>
-          <span class="value status" :class="{ 'public': notice.isPublic !== false }">
-              {{ notice.isPublic !== false ? "공개" : "비공개" }}
-            </span>
-        </div>
-      </div>
-      <div class="notice-content">
-        <p>{{ notice.content }}</p>
-      </div>
-      <div class="additional-info">
-        <span class="label">공지 종료일</span>
-        <span class="value">{{ formatDate(notice.endDate) || "미정" }}</span>
-      </div>
-      <div class="action-buttons">
-        <router-link :to="{ name: 'NoticeList' }" class="btn btn-secondary">목록으로</router-link>
-        <router-link :to="{ name: 'NoticeEdit', params: { id: notice.id } }" class="btn btn-primary">수정하기</router-link>
-      </div>
+  <div class="notice-container" v-if="notice">
+    <div class="header">
+      <h2>공지사항</h2>
+      <router-link :to="{ name: 'NoticeCreate' }" class="add-button">공지사항 등록</router-link>
     </div>
+    <table>
+      <thead>
+        <tr>
+          <th>NO</th>
+          <th>제목</th>
+          <th>등록자</th>
+          <th>등록일자</th>
+          <th>공지날짜</th>
+          <th>공지상태</th>
+          <th>관리</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-if="notices.length === 0">
+          <td colspan="7">공지사항이 없습니다.</td>
+        </tr>
+        <tr v-else v-for="(notice, index) in notices" :key="notice.id">
+          <td>{{ index + 1 }}</td>
+          <td>
+            <router-link :to="{ name: 'NoticeView', params: { id: notice.id } }">
+              {{ notice.title }}
+            </router-link>
+          </td>
+          <td>{{ notice.author || "관리자" }}</td>
+          <td>{{ formatDate(notice.date) }}</td>
+          <td>{{ formatDate(notice.endDate) || "-" }}</td>
+          <td>{{ notice.isPublic ? "공지중" : "종료" }}</td>
+          <td>
+            <button @click="editNotice(notice.id)" class="edit-button">수정</button>
+            <button @click="deleteNotice(notice.id)" class="delete-button">삭제</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -49,266 +57,102 @@ export default {
   methods: {
     async loadNotices() {
       try {
-        const response = await axios.get('/api/notices');
+        const response = await axios.get('http://localhost:8083/api/notice');
         this.notices = response.data;
       } catch (error) {
         console.error('공지사항 목록을 불러오는데 실패했습니다:', error);
+        alert('공지사항 목록을 불러오는데 실패했습니다.');
       }
+    },
+    formatDate(dateString) {
+      if (!dateString) return '';
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('ko-KR', options);
     },
     editNotice(id) {
       this.$router.push({ name: 'NoticeEdit', params: { id: id.toString() } });
     },
     async deleteNotice(id) {
-      if (confirm('정말로 이 공지사항을 삭제하시겠습니까?')) {
+      if (confirm('정말로 삭제하시겠습니까?')) {
         try {
-          await axios.delete(`/api/notices/${id}`);
-          this.loadNotices(); // 목록 새로고침
+          await axios.delete(`http://localhost:8083/api/notice/${id}`);
+          this.loadNotices();
         } catch (error) {
-          console.error('공지사항 삭제에 실패했습니다:', error);
+          console.error('공지사항 삭제 중 오류 발생:', error);
+          alert('공지사항 삭제에 실패했습니다.');
         }
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>
-.notice-view {
-  max-width: 800px;
+.notice-container {
+  max-width: 1000px;
   margin: 2rem auto;
+  padding: 2rem;
   background-color: #ffffff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 }
 
-.content {
-  padding: 2rem;
-}
-
-.title {
-  font-size: 2.5rem;
-  color: #333;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid #eaeaea;
-  padding-bottom: 0.5rem;
-}
-
-.meta-info {
+.header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background-color: #f9f9f9;
-  border: 1px solid #eaeaea;
-  border-radius: 4px;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.label {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 0.25rem;
-}
-
-.value {
-  font-size: 1rem;
-  color: #333;
-  font-weight: 500;
-}
-
-.status {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-weight: 500;
-}
-
-.status.public {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-.notice-content {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: #444;
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background-color: #ffffff;
-  border: 1px solid #eaeaea;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.additional-info {
-  display: flex;
-  justify-content: flex-start;
   align-items: center;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background-color: #f9f9f9;
-  border: 1px solid #eaeaea;
-  border-radius: 4px;
+  margin-bottom: 1.5rem;
 }
 
-.additional-info .label {
-  margin-right: 1rem;
-}
-
-.action-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 2rem;
-}
-
-.btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  border: 1px solid transparent;
-}
-
-.btn-primary {
-  background-color: #1976d2;
+.add-button {
+  padding: 0.5rem 1rem;
+  background-color: #4CAF50;
   color: white;
-  margin-left: 1rem;
+  border: none;
+  border-radius: 4px;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-.btn-secondary {
-  background-color: #f5f5f5;
-  color: #333;
-  border-color: #ddd;
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.btn:hover {
+thead {
+  background-color: #f2f2f2;
+}
+
+th, td {
+  padding: 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.delete-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.edit-button:hover {
   opacity: 0.9;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.delete-button:hover {
+  opacity: 0.9;
 }
 </style>
-<style scoped>
-  .notice-view {
-    max-width: 800px;
-    margin: 2rem auto;
-    background-color: #ffffff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-  }
-  
-  .content {
-    padding: 2rem;
-  }
-  
-  .title {
-    font-size: 2.5rem;
-    color: #333;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid #eaeaea;
-    padding-bottom: 0.5rem;
-  }
-  
-  .meta-info {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 2rem;
-    padding: 1rem;
-    background-color: #f9f9f9;
-    border: 1px solid #eaeaea;
-    border-radius: 4px;
-  }
-  
-  .info-item {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .label {
-    font-size: 0.9rem;
-    color: #666;
-    margin-bottom: 0.25rem;
-  }
-  
-  .value {
-    font-size: 1rem;
-    color: #333;
-    font-weight: 500;
-  }
-  
-  .status {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-weight: 500;
-  }
-  
-  .status.public {
-    background-color: #e8f5e9;
-    color: #2e7d32;
-  }
-  
-  .notice-content {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: #444;
-    margin: 2rem 0;
-    padding: 1.5rem;
-    background-color: #ffffff;
-    border: 1px solid #eaeaea;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  }
-  
-  .additional-info {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding: 1rem;
-    background-color: #f9f9f9;
-    border: 1px solid #eaeaea;
-    border-radius: 4px;
-  }
-  
-  .additional-info .label {
-    margin-right: 1rem;
-  }
-  
-  .action-buttons {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 2rem;
-  }
-  
-  .btn {
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    font-size: 1rem;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
-  }
-  
-  .btn-primary {
-    background-color: #1976d2;
-    color: white;
-    margin-left: 1rem;
-  }
-  
-  .btn-secondary {
-    background-color: #f5f5f5;
-    color: #333;
-    border-color: #ddd;
-  }
-  
-  .btn:hover {
-    opacity: 0.9;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  </style>
