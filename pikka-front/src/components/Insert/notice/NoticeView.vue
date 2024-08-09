@@ -1,43 +1,19 @@
 <template>
-  <div class="notice-container" v-if="notice">
-    <div class="header">
-      <h2>공지사항</h2>
-      <router-link :to="{ name: 'NoticeCreate' }" class="add-button">공지사항 등록</router-link>
+  <div class="notice-view" v-if="notice">
+    <h2>{{ notice.notiTitle }}</h2>
+    <div class="notice-info">
+      <p>작성자: {{ notice.notiAdminName || "관리자" }}</p>
+      <p>등록일: {{ formatDate(notice.notiCreateAt) }}</p>
+      <p>공지기간: {{ formatDate(notice.notiStartDate) }} - {{ formatDate(notice.notiCloseDate) || "미정" }}</p>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>NO</th>
-          <th>제목</th>
-          <th>등록자</th>
-          <th>등록일자</th>
-          <th>공지날짜</th>
-          <th>공지상태</th>
-          <th>관리</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-if="notices.length === 0">
-          <td colspan="7">공지사항이 없습니다.</td>
-        </tr>
-        <tr v-else v-for="(notice, index) in notices" :key="notice.id">
-          <td>{{ index + 1 }}</td>
-          <td>
-            <router-link :to="{ name: 'NoticeView', params: { id: notice.id } }">
-              {{ notice.title }}
-            </router-link>
-          </td>
-          <td>{{ notice.author || "관리자" }}</td>
-          <td>{{ formatDate(notice.date) }}</td>
-          <td>{{ formatDate(notice.endDate) || "-" }}</td>
-          <td>{{ notice.isPublic ? "공지중" : "종료" }}</td>
-          <td>
-            <button @click="editNotice(notice.id)" class="edit-button">수정</button>
-            <button @click="deleteNotice(notice.id)" class="delete-button">삭제</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="notice-content">
+      <p>{{ notice.notiContents }}</p>
+    </div>
+    <div class="notice-actions">
+      <router-link :to="{ name: 'NoticeList' }" class="back-button">목록으로</router-link>
+      <button @click="editNotice" class="edit-button">수정</button>
+      <button @click="deleteNotice" class="delete-button">삭제</button>
+    </div>
   </div>
 </template>
 
@@ -45,23 +21,23 @@
 import axios from 'axios';
 
 export default {
-  name: 'NoticeList',
+  name: 'NoticeView',
   data() {
     return {
-      notices: []
+      notice: null
     };
   },
   created() {
-    this.loadNotices();
+    this.loadNotice();
   },
   methods: {
-    async loadNotices() {
+    async loadNotice() {
       try {
-        const response = await axios.get('http://localhost:8083/api/notice');
-        this.notices = response.data;
+        const response = await axios.get(`http://localhost:8083/api/notice/${this.$route.params.id}`);
+        this.notice = response.data;
       } catch (error) {
-        console.error('공지사항 목록을 불러오는데 실패했습니다:', error);
-        alert('공지사항 목록을 불러오는데 실패했습니다.');
+        console.error('공지사항을 불러오는데 실패했습니다:', error);
+        alert('공지사항을 불러오는데 실패했습니다.');
       }
     },
     formatDate(dateString) {
@@ -69,14 +45,15 @@ export default {
       const options = { year: 'numeric', month: 'long', day: 'numeric' };
       return new Date(dateString).toLocaleDateString('ko-KR', options);
     },
-    editNotice(id) {
-      this.$router.push({ name: 'NoticeEdit', params: { id: id.toString() } });
+    editNotice() {
+      this.$router.push({ name: 'NoticeEdit', params: { id: this.notice.notiId.toString() } });
     },
-    async deleteNotice(id) {
+    async deleteNotice() {
       if (confirm('정말로 삭제하시겠습니까?')) {
         try {
-          await axios.delete(`http://localhost:8083/api/notice/${id}`);
-          this.loadNotices();
+          await axios.delete(`http://localhost:8083/api/notice/${this.notice.notiId}`);
+          this.$router.push({ name: 'NoticeList' });
+          alert('공지사항이 성공적으로 삭제되었습니다.');
         } catch (error) {
           console.error('공지사항 삭제 중 오류 발생:', error);
           alert('공지사항 삭제에 실패했습니다.');
@@ -84,12 +61,12 @@ export default {
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>
-.notice-container {
-  max-width: 1000px;
+.notice-view {
+  max-width: 800px;
   margin: 2rem auto;
   padding: 2rem;
   background-color: #ffffff;
@@ -97,45 +74,35 @@ export default {
   border-radius: 8px;
 }
 
-.header {
+.notice-info {
+  margin-bottom: 1rem;
+  color: #666;
+}
+
+.notice-content {
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.notice-actions {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
+  justify-content: flex-end;
+  gap: 1rem;
 }
 
-.add-button {
-  padding: 0.5rem 1rem;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-thead {
-  background-color: #f2f2f2;
-}
-
-th, td {
-  padding: 0.75rem;
-  text-align: center;
-  border-bottom: 1px solid #ddd;
-}
-
-button {
+.back-button, .edit-button, .delete-button {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.875rem;
   transition: background-color 0.3s ease;
+}
+
+.back-button {
+  background-color: #f0f0f0;
+  color: #333;
+  text-decoration: none;
 }
 
 .edit-button {
@@ -148,11 +115,7 @@ button {
   color: white;
 }
 
-.edit-button:hover {
-  opacity: 0.9;
-}
-
-.delete-button:hover {
+button:hover, .back-button:hover {
   opacity: 0.9;
 }
 </style>
