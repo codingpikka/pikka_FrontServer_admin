@@ -43,14 +43,14 @@ export default {
   data() {
     return {
       notice: {
-        notiId: '',               // 공지사항 ID, 초기값: 빈 문자열
-        notiAdminId: '',          // 관리자 ID, 초기값: 빈 문자열
-        notiAdminName: '',        // 관리자 이름, 초기값: 빈 문자열
-        notiTitle: '',            // 제목, 초기값: 빈 문자열
-        notiContents: '',         // 내용, 초기값: 빈 문자열
-        notiStartDate: '',        // 공지 시작 날짜, 초기값: 빈 문자열
-        notiCloseDate: '',        // 공지 종료 날짜, 초기값: 빈 문자열
-        isPublic: false           // 공개 여부, 초기값: false
+        notiId: '',
+        notiAdminId: '',
+        notiAdminName: '',
+        notiTitle: '',
+        notiContents: '',
+        notiStartDate: '',
+        notiCloseDate: '',
+        isPublic: true,
       },
       isEditing: false
     };
@@ -66,9 +66,28 @@ export default {
     }
   },
   methods: {
+    async loadNotice() {
+      try {
+        const response = await axios.get(`http://localhost:8083/api/notice/${this.id}`);
+        this.notice = response.data;
+        
+        // 날짜 형식 조정 (YYYY-MM-DD)
+        this.notice.notiStartDate = this.formatDate(this.notice.notiStartDate);
+        this.notice.notiCloseDate = this.formatDate(this.notice.notiCloseDate);
+      } catch (error) {
+        console.error('공지사항을 불러오는데 실패했습니다:', error);
+        alert('공지사항을 불러오는데 실패했습니다.');
+      }
+    },
+    
+    formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toISOString().split('T')[0];
+    },
+
     async saveNotice() {
       try {
-        // Determine URL and HTTP method based on whether we are editing or creating
         const url = this.isEditing 
           ? `http://localhost:8083/api/notice/${this.notice.notiId}` 
           : 'http://localhost:8083/api/notice';
@@ -78,27 +97,22 @@ export default {
         console.log('Request method:', method);
         console.log('Request data:', this.notice);
 
-        // Send request using axios
         const response = await axios({
           method,
-          url : "http://localhost:8083/api/notice",
+          url,
           data: this.notice
         });
 
         console.log('Server response:', response.data);
 
-        // Redirect to notice list on success
         this.$router.push({ name: 'NoticeList' });
       } catch (error) {
-        // Handle errors in a user-friendly way
         let errorMessage = '공지사항 저장에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.';
         
         if (error.response) {
-          // Error response from server
           const status = error.response.status;
           const message = error.response.data.message || error.message;
 
-          // Customize message based on status
           switch (status) {
             case 400:
               errorMessage = '잘못된 요청입니다. 입력값을 확인해주세요.';
@@ -121,14 +135,11 @@ export default {
           
           console.error('Server error:', message);
         } else if (error.request) {
-          // No response received from server
           console.error('No response received:', error.request);
         } else {
-          // Error setting up the request
           console.error('Request setup error:', error.message);
         }
         
-        // Display error message to the user
         alert(errorMessage);
       }
     },

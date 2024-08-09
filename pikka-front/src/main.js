@@ -6,7 +6,7 @@ import axios from "axios";
 import './assets/css/reset.css';
 import './assets/css/common.css';
 
-axios.defaults.baseURL = 'http://localhost:5174'
+axios.defaults.baseURL = 'http://localhost:5173'
 const app = createApp(App);
     
 app.use(createPinia());

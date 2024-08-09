@@ -15,7 +15,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5174', // 백엔드 서버 URL을 여기에 입력하세요
+        target: 'http://localhost:8083', // 백엔드 서버 URL을 여기에 입력하세요
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
