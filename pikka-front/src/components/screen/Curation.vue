@@ -5,7 +5,7 @@
       <div class="column">상태</div>
       <div class="column">등록일자</div>
       <div class="column">
-        <div class="new-button" @click="toggleOverlay">
+        <div class="new-button" @click="openNewCuration">
           <svg
             width="20"
             height="20"
@@ -42,15 +42,14 @@
         </div>
       </div>
     </div>
-
     <div class="row" v-for="(curation, index) in curations" :key="index">
-      <div class="column">{{ curation.name }}</div>
+      <div class="column">{{ curation.title }}</div>
       <div class="column">
         <span :class="['status', curation.statusClass]">{{ curation.status }}</span>
       </div>
       <div class="column">{{ curation.date }}</div>
       <div class="column">
-        <div class="arrow-button" @click="toggleOverlay">
+        <div class="arrow-button" @click="editJob(index)">
           <svg
             width="30"
             height="30"
@@ -66,216 +65,184 @@
         </div>
       </div>
     </div>
-  </div>
-
-  <div class="overlay" v-if="isOverlayVisible">
-    <div class="new-container">
-      <div class="new-header">
-        <h1>큐레이션 등록하기</h1>
-      </div>
-
-      <div class="new-form-group">
-        <label for="new-curation-name">큐레이션명</label>
-        <input
-          type="text"
-          id="new-curation-name"
-          v-model="newCuration.name"
-          placeholder="placeholder 로 큐레이션 글자수 넣기(최대 20자)"
-        />
-      </div>
-
-      <div class="new-form-group">
-        <label for="new-post-register">게시물등록</label>
-        <div class="new-search-container" @click="handleContainerClick">
+    <div class="overlay" v-if="isOverlayVisible">
+      <div class="new-container">
+        <div class="new-form-group">
+          <label for="new-curation-name">큐레이션명</label>
           <input
             type="text"
-            id="new-post-register"
-            v-model="newCuration.postRegister"
-            placeholder="게시물 입력하기: 클릭시 - 팝업"
-            readonly
+            id="new-curation-name"
+            v-model="newJob.title"
+            placeholder="큐레이션명 입력"
           />
-          <button @click.stop="showPopup">검색</button>
         </div>
-      </div>
-
-      <div class="new-button-container">
-        <div class="new-thumbnail" @click="triggerFileUpload">
-          <img :src="newCuration.thumbnail" alt="이미지 없음" id="thumbnail-preview" />
-        </div>
-        <input
-          type="file"
-          id="thumbnail-upload"
-          ref="thumbnailUpload"
-          accept="image/*"
-          @change="handleThumbnailUpload"
-          style="display: none"
-        />
-        <button class="new-register-button" @click="addNewCurationItem">완료</button>
-      </div>
-
-      <div class="new-curation-list">
-        <h2>큐레이션</h2>
-        <div class="new-curation-items">
-          <div
-            class="new-curation-item"
-            v-for="(item, index) in newCurationItems"
-            :key="index"
-          >
-            <div class="new-thumbnail">
-              <img :src="item.thumbnail" alt="이미지 없음" />
-            </div>
-            <p>{{ item.title }}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="new-register-button">
-        <button @click="addNewCurationItem">등록하기</button>
-        <button @click="toggleOverlay">닫기</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="popup-overlay" v-if="isPopupVisible">
-    <div class="popup-container">
-      <div class="popup-header">
-        <h1>등록하고 싶은 게시물의 제목 입력하세요</h1>
-        <button class="close-popup" @click="togglePopup">X</button>
-      </div>
-      <div class="popup-body">
-        <div class="popup-form-group">
-          <label for="post-title">게시물명</label>
-          <div class="input-container">
+        <div class="new-form-group">
+          <label for="new-post-register">게시물등록</label>
+          <div class="input-container" style="display: flex; align-items: center">
             <input
               type="text"
-              id="post-title"
-              v-model="searchTerm"
-              placeholder="개발자"
-              @keyup.enter="searchPosts"
+              id="new-post-register"
+              v-model="newJob.jobInfoTitle"
+              placeholder="게시물 입력하기: 클릭시 - 팝업"
+              readonly
             />
-            <button class="search-button" @click="searchPosts">검색</button>
+            <button class="search-button" @click.stop="showPopup" style="width: 50px">
+              검색
+            </button>
           </div>
         </div>
-        <table class="popup-table">
-          <thead>
-            <tr>
-              <th>NO</th>
-              <th>카테고리</th>
-              <th>제목</th>
-              <th>날짜</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="post in filteredResults" :key="post.no" @click="selectPost(post)">
-              <td>{{ post.no }}</td>
-              <td>{{ post.category }}</td>
-              <td>{{ post.title }}</td>
-              <td>{{ post.date }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <button class="register-button" @click="registerPost">등록하기</button>
+        <div class="new-form-group">
+          <label for="new-curation-status">상태</label>
+          <select id="new-curation-status" v-model="newJob.status">
+            <option value="노출중">노출중</option>
+            <option value="비노출">비노출</option>
+            <option value="노출예정">노출예정</option>
+          </select>
+        </div>
+        <div class="new-button-container">
+          <div class="new-thumbnail" @click="triggerFileUpload">
+            <img :src="newJob.thumbnail" alt="이미지 없음" id="thumbnail-preview" />
+          </div>
+          <input
+            type="file"
+            id="thumbnail-upload"
+            ref="thumbnailUpload"
+            accept="image/*"
+            @change="handleThumbnailUpload"
+            style="display: none"
+          />
+          <button class="new-register-button_S" @click="addNewJobItem">완료</button>
+        </div>
+        <div class="new-curation-list">
+          <h2>큐레이션</h2>
+          <div class="new-curation-items">
+            <div
+              class="new-curation-item"
+              v-for="(item, index) in newJobItems"
+              :key="index"
+            >
+              <div class="new-thumbnail">
+                <img :src="item.thumbnail" alt="이미지 없음" />
+              </div>
+              <p>{{ item.jobCompanyName }}</p>
+              <p>{{ item.jobInfoTitle }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="new-register-button">
+          <button @click="registerJob">등록하기</button>
+          <button @click="toggleOverlay">닫기</button>
+          <button v-if="isEditing" @click="deleteJob">삭제하기</button>
+          <!-- 삭제 버튼 추가 -->
+        </div>
+      </div>
+    </div>
+    <div class="popup-overlay" v-if="isPopupVisible">
+      <div class="popup-container">
+        <div class="popup-header">
+          <h1>등록하고 싶은 게시물의 제목 입력하세요</h1>
+          <button class="close-popup" @click="togglePopup">X</button>
+        </div>
+        <div class="popup-body">
+          <div class="popup-form-group">
+            <label for="post-title">게시물명</label>
+            <div class="input-container">
+              <input
+                type="text"
+                id="post-title"
+                v-model="searchTerm"
+                placeholder="개발자"
+                @keyup.enter="searchPosts"
+              />
+              <button class="search-button" @click="searchPosts">검색</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="popup-table">
+              <thead>
+                <tr>
+                  <th>NO</th>
+                  <th>카테고리</th>
+                  <th>제목</th>
+                  <th>등록일자</th>
+                  <th>회사명</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(post, index) in filteredResults"
+                  :key="index"
+                  @click="selectPost(post)"
+                >
+                  <td>{{ index + 1 }}</td>
+                  <td>{{ post.jobCompanyName }}</td>
+                  <td>{{ post.jobInfoTitle }}</td>
+                  <td>{{ post.jobLocation }}</td>
+                  <td>{{ post.jobCompanyName }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "Curation",
   data() {
     return {
       isOverlayVisible: false,
-      isPopupVisible: false,
+      isPopupVisible: false, // 팝업 상태 추가
       currentIndex: 0,
-      newCuration: {
-        name: "",
-        postRegister: "",
-        postName: "",
-        thumbnail: "",
+      isEditing: false, // 수정 모드 플래그 추가
+      newJob: {
+        category: "",
+        title: "",
+        jobCompanyName: "", // 이 필드가 올바르게 설정되었는지 확인
+        jobInfoTitle: "",
+        jobWageType: "",
+        jobSalary: "",
+        jobLocation: "",
+        jobEmploymentType: "",
+        jobWebInfoUrl: "",
+        jobMobileInfoUrl: "",
+        status: "노출중", // 기본 상태값 설정
+        thumbnail: "", // 썸네일 필드 추가
       },
-      curations: [
-        {
-          name: "큐레이션1: 겨울방학 관공서 일자리 정보",
-          status: "노출중",
-          statusClass: "exposed",
-          date: "2024-00-00",
-        },
-        {
-          name: "큐레이션: 이거 테스트임",
-          status: "비노출",
-          statusClass: "hidden",
-          date: "2024-00-00",
-        },
-        {
-          name: "큐레이션4: Job아보자 에디터 pick 자격증",
-          status: "노출예정",
-          statusClass: "scheduled",
-          date: "2024-00-00",
-        },
-        {
-          name: "큐레이션2: 취업보장 자격증 정보",
-          status: "노출중",
-          statusClass: "exposed",
-          date: "2024-00-00",
-        },
-        {
-          name: "큐레이션3: Job아보자 추천 일자리 리스트",
-          status: "노출중",
-          statusClass: "exposed",
-          date: "2024-00-00",
-        },
-      ],
-      newCurationItems: [],
+      jobs: [],
+      newJobItems: [],
       searchTerm: "",
-      searchResults: [
-        {
-          no: 1,
-          category: "자유게시판",
-          title: "개발 취업 가능할까요?",
-          date: "2024-xx-xx",
-        },
-        {
-          no: 2,
-          category: "자유게시판",
-          title: "CRDU 마스터하고 개발자 되기",
-          date: "2024-xx-xx",
-        },
-        {
-          no: 3,
-          category: "취업",
-          title: "[채용공고(~10/31)] 풀스택 개발자",
-          date: "2024-xx-xx",
-        },
-        {
-          no: 4,
-          category: "자격증",
-          title: "SQL 개발자 자격시험정보",
-          date: "2024-xx-xx",
-        },
-      ],
       filteredResults: [],
+      curations: [], // 큐레이션 목록 추가
+      tempThumbnail: "", // 임시 썸네일 필드 추가
+      tempThumbnailFile: null, // 임시 썸네일 파일 추가
     };
   },
-  computed: {
-    // 기존의 filteredResults는 삭제합니다.
-  },
   methods: {
+    openNewCuration() {
+      this.resetNewJob();
+      this.newJobItems = []; // 신규 등록 시 newJobItems 배열 초기화
+      this.toggleOverlay();
+    },
     toggleOverlay() {
       this.isOverlayVisible = !this.isOverlayVisible;
+      if (!this.isOverlayVisible) {
+        this.isEditing = false; // 오버레이가 닫힐 때 수정 모드 플래그 초기화
+      }
     },
     togglePopup() {
       this.isPopupVisible = !this.isPopupVisible;
     },
     showPopup() {
       this.isPopupVisible = true;
-      this.isOverlayVisible = false;
     },
     handleContainerClick(event) {
-      if (
-        this.newCuration.postRegister.trim() === "" ||
-        event.target.tagName === "BUTTON"
-      ) {
+      if (this.newJob.jobInfoTitle.trim() === "" || event.target.tagName === "BUTTON") {
         this.showPopup();
       } else {
         event.stopPropagation();
@@ -289,49 +256,169 @@ export default {
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.newCuration.thumbnail = e.target.result;
+          this.newJob.thumbnail = e.target.result; // newJob.thumbnail에 이미지 URL 설정
         };
         reader.readAsDataURL(file);
+        this.tempThumbnailFile = file; // 임시 썸네일 파일 저장
       }
     },
-    addNewCurationItem() {
+    addNewJobItem() {
       if (
-        !this.newCuration.name.trim() ||
-        !this.newCuration.postRegister.trim() ||
-        !this.newCuration.thumbnail.trim()
+        !this.newJob.jobCompanyName.trim() ||
+        !this.newJob.jobInfoTitle.trim() ||
+        !this.newJob.thumbnail.trim()
       ) {
         alert("데이터가 없습니다.");
         return;
       }
 
-      this.newCurationItems.push({
-        thumbnail: this.newCuration.thumbnail,
-        title: this.newCuration.postRegister,
+      this.newJobItems.push({
+        jobCompanyName: this.newJob.jobCompanyName,
+        jobInfoTitle: this.newJob.jobInfoTitle,
+        thumbnail: this.newJob.thumbnail,
+        status: this.newJob.status,
+        statusClass: this.getStatusClass(this.newJob.status),
+        date: new Date().toISOString().split("T")[0], // 실시간 날짜 설정
       });
 
-      this.newCuration.name = "";
-      this.newCuration.thumbnail = "";
-      this.newCuration.postRegister = "";
-      this.toggleOverlay();
+      this.newJob.jobCompanyName = "";
+      this.newJob.thumbnail = "";
+      this.tempThumbnailFile = null; // 임시 썸네일 파일 초기화
+      this.newJob.jobInfoTitle = "";
+      this.newJob.status = "노출중"; // 기본 상태값으로 초기화
+    },
+    registerJob() {
+      if (this.tempThumbnailFile) {
+        const formData = new FormData();
+        formData.append("file", this.tempThumbnailFile);
+
+        axios
+          .post("http://localhost:8083/api/curation/upload", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((response) => {
+            this.newJob.thumbnail = response.data; // 서버에서 반환된 이미지 URL을 저장
+            this.saveCuration();
+          })
+          .catch((error) => {
+            console.error("이미지 업로드 중 오류 발생:", error);
+          });
+      } else {
+        this.saveCuration();
+      }
+    },
+    saveCuration() {
+      if (this.isEditing) {
+        axios
+          .put(`http://localhost:8083/api/curation/${this.newJob.id}`, this.newJob)
+          .then(() => {
+            this.fetchCurations();
+            this.toggleOverlay();
+          })
+          .catch((error) => {
+            console.error("큐레이션 수정 중 오류 발생:", error);
+          });
+      } else {
+        axios
+          .post("http://localhost:8083/api/curation", this.newJob)
+          .then(() => {
+            this.fetchCurations();
+            this.toggleOverlay();
+          })
+          .catch((error) => {
+            console.error("큐레이션 등록 중 오류 발생:", error);
+          });
+      }
+    },
+    deleteJob() {
+      axios
+        .delete(`http://localhost:8083/api/curation/${this.newJob.id}`)
+        .then(() => {
+          this.fetchCurations();
+          this.toggleOverlay();
+        })
+        .catch((error) => {
+          console.error("큐레이션 삭제 중 오류 발생:", error);
+        });
     },
     searchPosts() {
-      this.filteredResults = this.searchResults.filter((post) =>
-        post.title.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
+      axios
+        .get(`http://localhost:8083/api/search?term=${this.searchTerm}`)
+        .then((response) => {
+          this.filteredResults = response.data.filter(
+            (post) => post && post.jobCompanyName && post.jobInfoTitle && post.jobLocation
+          );
+          this.showPopup(); // 검색 결과가 있을 때 팝업을 표시
+        })
+        .catch((error) => {
+          console.error("검색 중 오류 발생:", error);
+        });
     },
     selectPost(post) {
-      this.newCuration.postRegister = post.title;
+      this.newJob.jobInfoTitle = post.jobInfoTitle;
+      this.newJob.jobCompanyName = post.jobCompanyName;
+      this.newJob.jobLocation = post.jobLocation;
       this.togglePopup();
+    },
+    getStatusClass(status) {
+      switch (status) {
+        case "노출중":
+          return "exposed";
+        case "비노출":
+          return "hidden";
+        case "노출예정":
+          return "scheduled";
+        default:
+          return "";
+      }
+    },
+    fetchCurations() {
+      axios
+        .get("http://localhost:8083/api/curation")
+        .then((response) => {
+          this.curations = response.data.map((curation) => ({
+            ...curation,
+            statusClass: this.getStatusClass(curation.status),
+          }));
+        })
+        .catch((error) => {
+          console.error("큐레이션 목록을 가져오는 중 오류 발생:", error);
+        });
+    },
+    editJob(index) {
+      const job = this.curations[index];
+      this.newJob = { ...job };
+      this.newJobItems = []; // 편집 시 newJobItems 배열 초기화
+      this.isEditing = true; // 수정 모드 플래그 설정
       this.toggleOverlay();
     },
-    registerPost() {
-      // 등록 로직 추가
+    resetNewJob() {
+      this.newJob = {
+        category: "",
+        title: "",
+        jobCompanyName: "",
+        jobInfoTitle: "",
+        jobWageType: "",
+        jobSalary: "",
+        jobLocation: "",
+        jobEmploymentType: "",
+        jobWebInfoUrl: "",
+        jobMobileInfoUrl: "",
+        status: "노출중",
+        thumbnail: "",
+      };
     },
+  },
+  mounted() {
+    this.fetchCurations(); // 컴포넌트가 마운트될 때 큐레이션 목록을 가져옴
   },
 };
 </script>
 
 <style scoped>
+/* 기존 스타일 유지 */
 body {
   font-family: Arial, sans-serif;
 }
@@ -421,7 +508,6 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 20px 0;
-  border-bottom: 220px 0;
   border-bottom: 2px solid #ccc;
 }
 
@@ -489,18 +575,6 @@ body {
   align-items: flex-end;
 }
 
-.new-button-container button {
-  padding: 10px 20px;
-  background-color: #e53e3e;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  width: 70px;
-  height: 38px;
-  margin-left: 30px;
-}
-
 .new-curation-list {
   margin-top: 40px;
 }
@@ -525,22 +599,39 @@ body {
   text-align: center;
   margin-bottom: 20px;
 }
-
 .new-curation-item .new-thumbnail {
   width: 100%;
   height: 100px;
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.new-curation-item img {
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .new-curation-item p {
   margin: 0;
-  font-size: 14px;
 }
 
-.new-register-button {
-  display: flex;
-  justify-content: center;
+.table-container {
+  max-height: 400px; /* 원하는 높이 설정 */
+  overflow-y: auto;
+}
+
+.new-register-button_S {
+  padding: 10px 20px;
+  background-color: #e53e3e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
   margin-top: 20px;
+  margin-left: 10px;
 }
 
 .new-register-button button {
@@ -550,26 +641,25 @@ body {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  margin: 0 10px;
+  text-align: center;
+  margin-top: 20px;
+  margin-right: 10px;
 }
 
 .overlay {
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   width: 100%;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.new-container {
-  margin-top: 35px;
-}
-
-/* 팝업 */
 .popup-overlay {
   position: fixed;
-  /* fixed로 변경하여 화면 중앙에 고정 */
   left: 0;
   top: 0;
   width: 100%;
@@ -583,14 +673,11 @@ body {
 .popup-container {
   width: 100%;
   max-width: 600px;
-  /* 팝업의 최대 너비 설정 */
   margin: 0 auto;
   padding: 20px;
   background-color: white;
   border-radius: 8px;
-  /* 모서리 둥글게 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  /* 그림자 추가 */
 }
 
 .popup-header {
@@ -632,7 +719,7 @@ body {
   border-radius: 4px 0 0 4px;
 }
 
-.popup-form-group .search-button {
+.search-button {
   padding: 10px;
   border: 1px solid #ccc;
   border-left: none;
@@ -663,7 +750,8 @@ body {
   display: block;
   width: 100%;
   padding: 10px 20px;
-  background-color: #f2dede;
+  background-color: #e53e3e;
+  color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -676,5 +764,33 @@ body {
   border: none;
   font-size: 20px;
   cursor: pointer;
+}
+
+/* 추가된 스타일 */
+.new-register-button_S {
+  padding: 10px 20px;
+  background-color: #e53e3e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 20px;
+  margin-left: 10px;
+}
+.new-register-button button {
+  padding: 10px 20px;
+  background-color: #e53e3e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 20px;
+  margin-right: 10px;
+}
+.table-container {
+  height: 350px;
+  overflow-y: scroll;
 }
 </style>
