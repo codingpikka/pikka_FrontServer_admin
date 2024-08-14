@@ -201,18 +201,18 @@ export default {
       currentIndex: 0,
       isEditing: false, // 수정 모드 플래그 추가
       newJob: {
-        category: "",
-        title: "",
-        jobCompanyName: "", // 이 필드가 올바르게 설정되었는지 확인
-        jobInfoTitle: "",
-        jobWageType: "",
-        jobSalary: "",
-        jobLocation: "",
-        jobEmploymentType: "",
-        jobWebInfoUrl: "",
-        jobMobileInfoUrl: "",
+        title: "", // 타이틀 필드 추가
+        jobCompanyName: "", // 회사명
+        jobInfoTitle: "", // 직무 제목
+        jobWageType: "", // 임금 형태
+        jobSalary: "", // 급여
+        jobLocation: "", // 위치
+        jobEmploymentType: "", // 고용 형태
+        jobWebInfoUrl: "", // 웹 정보 URL
+        jobMobileInfoUrl: "", // 모바일 정보 URL
         status: "노출중", // 기본 상태값 설정
         thumbnail: "", // 썸네일 필드 추가
+        date: "", // 날짜 필드 추가
       },
       jobs: [],
       newJobItems: [],
@@ -263,51 +263,63 @@ export default {
       }
     },
     addNewJobItem() {
-      if (
-        !this.newJob.jobCompanyName.trim() ||
-        !this.newJob.jobInfoTitle.trim() ||
-        !this.newJob.thumbnail.trim()
-      ) {
+      if (!this.newJob.jobCompanyName.trim() || !this.newJob.jobInfoTitle.trim()) {
         alert("데이터가 없습니다.");
         return;
       }
 
       this.newJobItems.push({
+        title: this.newJob.title, // 타이틀 필드 추가
         jobCompanyName: this.newJob.jobCompanyName,
         jobInfoTitle: this.newJob.jobInfoTitle,
+        jobWageType: this.newJob.jobWageType,
+        jobSalary: this.newJob.jobSalary,
+        jobLocation: this.newJob.jobLocation,
+        jobEmploymentType: this.newJob.jobEmploymentType,
+        jobWebInfoUrl: this.newJob.jobWebInfoUrl,
+        jobMobileInfoUrl: this.newJob.jobMobileInfoUrl,
         thumbnail: this.newJob.thumbnail,
         status: this.newJob.status,
         statusClass: this.getStatusClass(this.newJob.status),
         date: new Date().toISOString().split("T")[0], // 실시간 날짜 설정
       });
 
-      this.newJob.jobCompanyName = "";
-      this.newJob.thumbnail = "";
-      this.tempThumbnailFile = null; // 임시 썸네일 파일 초기화
-      this.newJob.jobInfoTitle = "";
-      this.newJob.status = "노출중"; // 기본 상태값으로 초기화
+      // newJob 객체 초기화
+      this.resetNewJob();
     },
     registerJob() {
-      if (this.tempThumbnailFile) {
-        const formData = new FormData();
-        formData.append("file", this.tempThumbnailFile);
-
-        axios
-          .post("http://localhost:8083/api/curation/upload", formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          })
-          .then((response) => {
-            this.newJob.thumbnail = response.data; // 서버에서 반환된 이미지 URL을 저장
-            this.saveCuration();
-          })
-          .catch((error) => {
-            console.error("이미지 업로드 중 오류 발생:", error);
-          });
-      } else {
-        this.saveCuration();
+      if (this.newJobItems.length === 0) {
+        alert("등록할 항목이 없습니다.");
+        return;
       }
+
+      // newJobItems의 첫 번째 항목을 newJob 객체에 설정
+      const firstItem = this.newJobItems[0];
+      this.newJob.title = firstItem.title; // 타이틀 필드 설정
+      this.newJob.jobCompanyName = firstItem.jobCompanyName;
+      this.newJob.jobInfoTitle = firstItem.jobInfoTitle;
+      this.newJob.jobWageType = firstItem.jobWageType;
+      this.newJob.jobSalary = firstItem.jobSalary;
+      this.newJob.jobLocation = firstItem.jobLocation;
+      this.newJob.jobEmploymentType = firstItem.jobEmploymentType;
+      this.newJob.jobWebInfoUrl = firstItem.jobWebInfoUrl;
+      this.newJob.jobMobileInfoUrl = firstItem.jobMobileInfoUrl;
+      this.newJob.thumbnail = firstItem.thumbnail;
+      this.newJob.status = firstItem.status;
+      this.newJob.date = firstItem.date; // 날짜 필드 설정
+
+      // 필수 필드가 모두 채워졌는지 확인
+      if (
+        !this.newJob.title ||
+        !this.newJob.jobCompanyName ||
+        !this.newJob.jobInfoTitle ||
+        !this.newJob.jobLocation
+      ) {
+        alert("필수 필드가 누락되었습니다.");
+        return;
+      }
+
+      this.saveCuration(); // 데이터를 저장
     },
     saveCuration() {
       if (this.isEditing) {
@@ -333,6 +345,8 @@ export default {
       }
     },
     deleteJob() {
+      if (!this.isEditing) return;
+
       axios
         .delete(`http://localhost:8083/api/curation/${this.newJob.id}`)
         .then(() => {
@@ -345,7 +359,7 @@ export default {
     },
     searchPosts() {
       axios
-        .get(`http://localhost:8083/api/search?term=${this.searchTerm}`)
+        .get(`http://localhost:8083/api/curation/search?term=${this.searchTerm}`)
         .then((response) => {
           this.filteredResults = response.data.filter(
             (post) => post && post.jobCompanyName && post.jobInfoTitle && post.jobLocation
@@ -360,6 +374,11 @@ export default {
       this.newJob.jobInfoTitle = post.jobInfoTitle;
       this.newJob.jobCompanyName = post.jobCompanyName;
       this.newJob.jobLocation = post.jobLocation;
+      this.newJob.jobWageType = post.jobWageType;
+      this.newJob.jobSalary = post.jobSalary;
+      this.newJob.jobEmploymentType = post.jobEmploymentType;
+      this.newJob.jobWebInfoUrl = post.jobWebInfoUrl;
+      this.newJob.jobMobileInfoUrl = post.jobMobileInfoUrl;
       this.togglePopup();
     },
     getStatusClass(status) {
@@ -388,16 +407,15 @@ export default {
         });
     },
     editJob(index) {
-      const job = this.curations[index];
-      this.newJob = { ...job };
-      this.newJobItems = []; // 편집 시 newJobItems 배열 초기화
-      this.isEditing = true; // 수정 모드 플래그 설정
+      const curation = this.curations[index];
+      this.newJob = { ...curation };
+      this.isEditing = true;
       this.toggleOverlay();
     },
     resetNewJob() {
       this.newJob = {
         category: "",
-        title: "",
+        title: "", // 타이틀 필드 초기화
         jobCompanyName: "",
         jobInfoTitle: "",
         jobWageType: "",
@@ -408,11 +426,12 @@ export default {
         jobMobileInfoUrl: "",
         status: "노출중",
         thumbnail: "",
+        date: "", // 날짜 필드 초기화
       };
     },
   },
   mounted() {
-    this.fetchCurations(); // 컴포넌트가 마운트될 때 큐레이션 목록을 가져옴
+    this.fetchCurations();
   },
 };
 </script>
