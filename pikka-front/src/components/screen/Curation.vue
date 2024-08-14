@@ -201,6 +201,8 @@ export default {
       currentIndex: 0,
       isEditing: false, // 수정 모드 플래그 추가
       newJob: {
+        id: null, // id 필드 추가
+        category: "",
         title: "", // 타이틀 필드 추가
         jobCompanyName: "", // 회사명
         jobInfoTitle: "", // 직무 제목
@@ -227,6 +229,13 @@ export default {
     openNewCuration() {
       this.resetNewJob();
       this.newJobItems = []; // 신규 등록 시 newJobItems 배열 초기화
+      this.toggleOverlay();
+    },
+    editJob(index) {
+      const curation = this.curations[index];
+      this.newJob = { ...curation };
+      console.log("Editing job with ID:", this.newJob.jobId); // 디버깅용 로그 추가
+      this.isEditing = true;
       this.toggleOverlay();
     },
     toggleOverlay() {
@@ -345,10 +354,15 @@ export default {
       }
     },
     deleteJob() {
-      if (!this.isEditing) return;
+      if (!this.isEditing || !this.newJob.jobId) {
+        alert("삭제할 항목이 없습니다.");
+        return;
+      }
+
+      console.log("Deleting job with ID:", this.newJob.jobId); // 디버깅용 로그 추가
 
       axios
-        .delete(`http://localhost:8083/api/curation/${this.newJob.id}`)
+        .delete(`http://localhost:8083/api/curation/${this.newJob.jobId}`)
         .then(() => {
           this.fetchCurations();
           this.toggleOverlay();
@@ -401,19 +415,16 @@ export default {
             ...curation,
             statusClass: this.getStatusClass(curation.status),
           }));
+          console.log("Fetched curations:", this.curations); // 디버깅용 로그 추가
         })
         .catch((error) => {
           console.error("큐레이션 목록을 가져오는 중 오류 발생:", error);
         });
     },
-    editJob(index) {
-      const curation = this.curations[index];
-      this.newJob = { ...curation };
-      this.isEditing = true;
-      this.toggleOverlay();
-    },
+
     resetNewJob() {
       this.newJob = {
+        id: null, // id 필드 초기화
         category: "",
         title: "", // 타이틀 필드 초기화
         jobCompanyName: "",
